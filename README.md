@@ -62,7 +62,7 @@
 ## Learn More
 
 - [React Documentation](https://reactjs.org)
-- [Truffle Documentation]([https://trufflesuite.com/docs/truffle/overview](https://archive.trufflesuite.com/docs/truffle/))
+- [Truffle Documentation](https://archive.trufflesuite.com/docs/truffle)
 
 ## License
 
