@@ -1,11 +1,8 @@
-import React, {
-  createContext,
-  useContext,
-  useState,
-  useEffect,
-  Children,
-} from "react";
+import React, { createContext, useContext, useState, useEffect } from "react";
 import Web3 from "web3";
+import axios from "axios";
+
+// Import contract
 import PatientDataContract from "../contracts/contracts/PatientDataContract.json";
 
 const PatientDataContext = createContext(null);
@@ -14,8 +11,11 @@ export const PatientDataProvider = ({ children }) => {
   const [account, setAccount] = useState("");
   const [contract, setContract] = useState({});
 
+  const STARTON_BASE_URL = process.env.REACT_APP_STARTON_BASE_URL;
+  const STARTON_API_KEY = process.env.REACT_APP_STARTON_API_KEY;
+
   useEffect(() => {
-    const init = async () => {
+    const initWeb3 = async () => {
       try {
         const web3 = new Web3(Web3.givenProvider || "http://localhost:7545");
         const networkId = await web3.eth.net.getId();
@@ -34,7 +34,7 @@ export const PatientDataProvider = ({ children }) => {
         console.error("Error initializing contract:", error);
       }
     };
-    init();
+    initWeb3();
   }, []);
 
   const connectMetaMask = async () => {
@@ -54,8 +54,33 @@ export const PatientDataProvider = ({ children }) => {
     }
   };
 
+  const uploadToStarton = async (data) => {
+    try {
+      // AUTHENTICATING TO THE API USING YOUR API KEY
+      const startonApi = axios.create({
+        baseURL: `${STARTON_BASE_URL}`,
+        headers: {
+          "x-api-key": `${STARTON_API_KEY}`,
+        },
+      });
+
+      const response = await startonApi.post("/v3/ipfs/json", {
+        name: "PatientData", // name of your json file on starton.
+        content: { my: data }, // json object.
+      });
+
+      console.log("Data uploaded successfully:", response.data);
+      return response.data.cid; // Returns the IPFS CID
+    } catch (error) {
+      console.error("Error uploading data to Starton:", error);
+      throw error; // Rethrow error for further handling
+    }
+  };
+
   return (
-    <PatientDataContext.Provider value={{ connectMetaMask, account, contract }}>
+    <PatientDataContext.Provider
+      value={{ connectMetaMask, account, contract, uploadToStarton }}
+    >
       {children}
     </PatientDataContext.Provider>
   );
