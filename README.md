@@ -3,7 +3,7 @@
 
 ### Prerequisites
 
-- Node.js
+- Node.js (version 18.0.0)
 - npm
 - Truffle
 - Ganache (optional for local development)
